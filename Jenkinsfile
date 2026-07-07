@@ -28,12 +28,7 @@ pipeline {
 
         stage('Login to ECR') {
             steps {
-                bat '''
-                aws ecr get-login-password --region %AWS_REGION% > ecr-login.txt
-                set /p ECR_PASSWORD=<ecr-login.txt
-                docker login --username AWS --password %ECR_PASSWORD% %ECR_REGISTRY%
-                del ecr-login.txt
-                '''
+                bat 'powershell -NoProfile -Command "$p = aws ecr get-login-password --region $env:AWS_REGION; docker login --username AWS --password $p $env:ECR_REGISTRY"'
             }
         }
 
@@ -56,13 +51,7 @@ pipeline {
                 bat '''
                 kubectl config use-context %K8S_CONTEXT%
 
-                aws ecr get-login-password --region %AWS_REGION% > ecr-password.txt
-                set /p ECR_PASSWORD=<ecr-password.txt
-
-                kubectl delete secret ecr-secret --ignore-not-found
-                kubectl create secret docker-registry ecr-secret --docker-server=%ECR_REGISTRY% --docker-username=AWS --docker-password=%ECR_PASSWORD%
-
-                del ecr-password.txt
+                powershell -NoProfile -Command "$p = aws ecr get-login-password --region $env:AWS_REGION; kubectl delete secret ecr-secret --ignore-not-found; kubectl create secret docker-registry ecr-secret --docker-server=$env:ECR_REGISTRY --docker-username=AWS --docker-password=$p"
 
                 kubectl apply -f k8s
 
