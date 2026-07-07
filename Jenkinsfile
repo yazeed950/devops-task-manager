@@ -13,7 +13,7 @@ pipeline {
         stage('Prepare Version') {
             steps {
                 script {
-                    env.IMAGE_TAG = "v${env.BUILD_NUMBER}"
+                    env.IMAGE_TAG = "build-${env.BUILD_NUMBER}"
                 }
                 echo "Building version: ${env.IMAGE_TAG}"
             }
