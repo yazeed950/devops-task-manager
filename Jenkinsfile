@@ -28,7 +28,12 @@ pipeline {
 
         stage('Login to ECR') {
             steps {
-                bat 'aws ecr get-login-password --region %AWS_REGION% | docker login --username AWS --password-stdin %ECR_REGISTRY%'
+                bat '''
+                aws ecr get-login-password --region %AWS_REGION% > ecr-login.txt
+                set /p ECR_PASSWORD=<ecr-login.txt
+                docker login --username AWS --password %ECR_PASSWORD% %ECR_REGISTRY%
+                del ecr-login.txt
+                '''
             }
         }
 
